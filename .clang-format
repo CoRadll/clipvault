@@ -1,0 +1,55 @@
+---
+# 与 TransState-Engine 现有风格保持一致：
+#   - tab 缩进，宽度 4
+#   - Allman 大括号（左大括号独占一行）
+#   - namespace 内容缩进一级
+# 想改风格主要改下面 IndentWidth / UseTab / BreakBeforeBraces 三项
+Language: Cpp
+BasedOnStyle: LLVM
+
+Standard: c++20
+
+# ---------- 缩进 ----------
+UseTab: Always
+IndentWidth: 4
+TabWidth: 4
+ContinuationIndentWidth: 4
+NamespaceIndentation: All
+AccessModifierOffset: 0
+IndentCaseLabels: false
+
+# ---------- 大括号 ----------
+BreakBeforeBraces: Allman
+
+# ---------- 空行 ----------
+MaxEmptyLinesToKeep: 2
+EmptyLineBeforeAccessModifier: LogicalBlock
+
+# ---------- 行宽 ----------
+ColumnLimit: 120
+
+# ---------- 短语句 ----------
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortLambdasOnASingleLine: All
+
+# ---------- 指针与引用 ----------
+PointerAlignment: Left
+ReferenceAlignment: Pointer
+DerivePointerAlignment: false
+
+# ---------- include 顺序 ----------
+SortIncludes: CaseSensitive
+IncludeBlocks: Preserve
+
+# ---------- 注释 ----------
+ReflowComments: true
+
+# ---------- 其他 ----------
+InsertBraces: false
+SpaceAfterCStyleCast: false
+AlignAfterOpenBracket: Align
+BinPackArguments: true
+BinPackParameters: true

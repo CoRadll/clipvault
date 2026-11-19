@@ -1,0 +1,63 @@
+# ---------- 构建产物 ----------
+build/
+out/
+bin/
+obj/
+cmake-build-*/
+[Bb]uild*/
+
+# ---------- 编译中间文件 ----------
+*.obj
+*.o
+*.pdb
+*.ilk
+*.idb
+*.exp
+*.lib
+*.dll
+*.exe
+*.app
+*.log
+
+# ---------- Visual Studio / VS Code ----------
+.vs/
+*.vcxproj
+*.vcxproj.*
+*.sln
+*.user
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+CMakeUserPresets.json
+
+# ---------- 运行时数据（SQLite）----------
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+data/
+
+# ---------- 测试与覆盖率 ----------
+Testing/
+*.gcda
+*.gcno
+*.profraw
+*.profdata
+
+# ---------- CMake 生成物 ----------
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+
+# ---------- 编辑器 / 系统杂项 ----------
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+*.swo
+*~
