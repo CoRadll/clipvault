@@ -9,7 +9,6 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "cl",
         "CMAKE_CXX_COMPILER": "cl",
-        "CMAKE_MAKE_PROGRAM": "D:/Visual studio/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
       }
     },

@@ -4,7 +4,7 @@ setlocal
 call "D:\Visual studio\VC\Auxiliary\Build\vcvars64.bat" >nul 2>&1
 if errorlevel 1 (
     echo [ERROR] vcvars64.bat not found or failed
-    exit /b 1
+    goto :end
 )
 
 cd /d "%~dp0"
@@ -18,14 +18,14 @@ echo [1/2] configure...
 cmake --preset debug
 if errorlevel 1 (
     echo [ERROR] configure failed
-    exit /b 1
+    goto :end
 )
 
 echo [2/2] build...
 cmake --build --preset debug
 if errorlevel 1 (
     echo [ERROR] build failed
-    exit /b 1
+    goto :end
 )
 
 echo.
@@ -37,8 +37,11 @@ if /i "%~1"=="test" (
     build\debug\clipvault_tests.exe
     if errorlevel 1 (
         echo [ERROR] tests failed
-        exit /b 1
+        goto :end
     )
 )
 
+:end
+echo.
+pause
 endlocal
