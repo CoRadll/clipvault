@@ -1,8 +1,15 @@
 #include "clipvault/platform/win32/mainWindow.hpp"
+#include "clipvault/platform/win32/clipboardReader.hpp"
+
+#include <cstdio>
 
 #include <windows.h>
 #include <windowsx.h>   // GET_X_LPARAM / GET_Y_LPARAM
 
+namespace
+{
+	DWORD g_lastSequence = 0;
+}
 namespace clipvault::platform::win32
 {
 	namespace
@@ -34,6 +41,7 @@ namespace clipvault::platform::win32
 			switch (msg)
 			{
 			case WM_DESTROY:
+				RemoveClipboardFormatListener(hwnd);
 				PostQuitMessage(0);
 				return 0;
 
@@ -115,6 +123,23 @@ namespace clipvault::platform::win32
 				}
 				break;
 
+			case WM_CLIPBOARDUPDATE:
+			{
+				const DWORD seq = GetClipboardSequenceNumber();
+				if (seq == g_lastSequence)
+					return 0;
+				g_lastSequence = seq;
+				if (const auto text = readClipboardText())
+				{
+					handleClipboardUpdate(*text);
+				}
+				else
+				{
+					std::printf("[notify] no text\n");
+				}
+				return 0; //剪切板变化时的动作
+			}
+				
 			default:
 				break;
 			}
@@ -161,6 +186,8 @@ namespace clipvault::platform::win32
 			UnregisterClassW(kClassName, instance);
 			return;
 		}
+		
+		AddClipboardFormatListener(hwnd); //登记，剪贴板有变化则进行通知
 
 		// ---------- 第三步：把窗口裁成圆角矩形 ----------
 		// 前四个参数是外接矩形；右边界和下边界是"排他"的，

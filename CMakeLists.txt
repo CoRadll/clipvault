@@ -5,7 +5,11 @@ project(clipvault LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(clipvault src/main.cpp src/platform/win32/mainWindow.cpp external/sqlite3/sqlite3.c)
+add_executable(clipvault
+	src/main.cpp
+	src/platform/win32/mainWindow.cpp
+	src/platform/win32/clipboardReader.cpp
+	external/sqlite3/sqlite3.c)
 
 target_include_directories(clipvault PRIVATE external/sqlite3 include)
 
