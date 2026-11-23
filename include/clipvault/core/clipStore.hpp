@@ -10,6 +10,7 @@ struct sqlite3;
 
 namespace clipvault::core
 {
+    inline constexpr std::size_t kClipLimit = 100;
     class ClipStore
     {
     private:
