@@ -1,4 +1,6 @@
 #include "clipvault/platform/win32/clipboardReader.hpp"
+#include "clipvault/core/clipStore.hpp"
+#include "clipvault/core/textNormalize.hpp"
 
 #include <cstdio>
 
@@ -47,9 +49,12 @@ namespace clipvault::platform::win32
         return utf8;
     }
 
-    void handleClipboardUpdate(const std::string& text)
+    void handleClipboardUpdate(const std::string& text, clipvault::core::ClipStore& store)
 	{
-		std::printf("[clip] %zu bytes: %s\n", text.size(), text.c_str());
-		std::fflush(stdout);
+        const auto normalized = clipvault::core::normalize(text);
+        if(normalized.empty())
+            return;
+        store.insert(normalized);
+		store.trimTo(clipvault::core::kClipLimit);
 	}
 }

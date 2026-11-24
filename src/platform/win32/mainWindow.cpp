@@ -125,13 +125,17 @@ namespace clipvault::platform::win32
 
 			case WM_CLIPBOARDUPDATE:
 			{
+				auto* store = reinterpret_cast<clipvault::core::ClipStore*>(
+    				GetWindowLongPtrW(hwnd, GWLP_USERDATA));
+				if(store == nullptr)
+					return 0;
 				const DWORD seq = GetClipboardSequenceNumber();
 				if (seq == g_lastSequence)
 					return 0;
 				g_lastSequence = seq;
 				if (const auto text = readClipboardText())
 				{
-					handleClipboardUpdate(*text);
+					handleClipboardUpdate(*text, *store);
 				}
 				else
 				{
@@ -148,7 +152,7 @@ namespace clipvault::platform::win32
 		}
 	}
 
-	void runMainWindow()
+	void runMainWindow(clipvault::core::ClipStore& store)
 	{
 		// 取当前进程实例句柄，注册窗口类和创建窗口都要它
 		HINSTANCE instance = GetModuleHandleW(nullptr);
@@ -186,7 +190,7 @@ namespace clipvault::platform::win32
 			UnregisterClassW(kClassName, instance);
 			return;
 		}
-		
+		SetWindowLongPtrW(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(&store));
 		AddClipboardFormatListener(hwnd); //登记，剪贴板有变化则进行通知
 
 		// ---------- 第三步：把窗口裁成圆角矩形 ----------

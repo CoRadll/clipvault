@@ -31,6 +31,7 @@ src/
 tests/               单元测试
 external/            vendor 的第三方源码
 docs/                本目录
+.github/workflows/   CI 配置
 ```
 
 ## 构建
@@ -45,15 +46,18 @@ build.bat clean     清空 build 目录重新构建
 
 构建目标三个：`third_party_sqlite3`（静态库）、`clipvault_core`（静态库）、`clipvault` / `clipvault_tests`（可执行）。
 
+CI：每次 push 到 main 会在 `windows-latest` 上构建并跑测试。
+
 ## 模块状态
 
 | 模块 | 位置 | 状态 |
 |---|---|---|
 | textNormalize | core | 完成，11 个用例 |
 | clipRecord | core | 完成（字段定义） |
-| clipStore | core | 构造函数完成；insert / trimTo / recent 待实现 |
+| clipStore | core | 完成，9 个用例（insert / trimTo / recent） |
 | mainWindow | platform/win32 | 窗口、拖动、圆角、双色背景完成 |
 | clipboardReader | platform/win32 | 监听 + 读取文本完成 |
+| CI | `.github/workflows/ci.yml` | 构建 + 跑测试 |
 | 收藏库 FavoriteStore | core | 未开始 |
 | UI 列表显示 | platform/win32 | 未开始 |
 | 全局热键 | platform/win32 | 未开始 |
@@ -61,15 +65,28 @@ build.bat clean     清空 build 目录重新构建
 
 ## 下一步
 
-实现 `ClipStore` 剩下三个方法：
+把已经完成的三个模块连成一条链。现在 `textNormalize` 和 `ClipStore` 都还没有被主程序调用过。
 
-1. `trimTo` — SQL 已给出，直接用
-2. `insert` — 需要先给 `content` 列加 `UNIQUE` 约束，否则去重语法用不上
-3. `recent` — 注意 `sqlite3_column_text` 返回的指针在下次 step 后失效
+```
+windowProc 收到通知
+  → readClipboardText      已有
+  → normalize              未接
+  → ClipStore::insert      未接
+  → ClipStore::trimTo      未接
+```
+
+四处改动：
+
+1. `src/main.cpp` —— 创建 `ClipStore store("clips.db")`，传给 `runMainWindow`
+2. `include/clipvault/platform/win32/mainWindow.hpp` —— `runMainWindow` 加一个 `ClipStore&` 参数
+3. `src/platform/win32/mainWindow.cpp` —— 创建窗口后把 `&store` 存进 `GWLP_USERDATA`，`windowProc` 开头取回
+4. `src/platform/win32/clipboardReader.cpp` —— `handleClipboardUpdate` 需要访问 store：要么加参数，要么把这段逻辑挪进 `windowProc`
+
+验证标准：复制一段文字后，`build/debug/clips.db` 里真的多出一条记录。
 
 ## 未决问题
 
-- **数据库路径**：现在计划用相对路径 `clips.db`，依赖工作目录。正式分发前要改成 exe 同目录（用 `GetModuleFileNameW`）或 `LOCALAPPDATA`
+- **数据库路径**：已定使用相对路径 `clips.db`（落在工作目录）。正式分发前要改成 exe 同目录（用 `GetModuleFileNameW`）或 `LOCALAPPDATA`
 - **收藏的跨 Store 事务**：收藏动作要同时"插入 favorites + 标记 clips"，两个 Store 独立连接时无法原子。方案未定
 - **窗口总在最前**（`WS_EX_TOPMOST`）会挡住其他窗口，调试时不方便
 
