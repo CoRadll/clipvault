@@ -7,7 +7,7 @@
 Windows 剪贴板历史管理器。常驻后台记录剪贴板文本，热键唤起浮层，输入过滤，回车粘回。
 
 - 仓库：https://github.com/CoRadll/clipvault
-- 本地路径：`C:\Users\72673\Desktop\clipvault`
+- 本地路径：`apps/clipvault/`（在 personal-project 工作区内）
 
 ## 技术栈
 
