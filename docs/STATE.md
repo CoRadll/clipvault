@@ -44,7 +44,7 @@ build.bat clean     清空 build 目录重新构建
 
 `build.bat` 内部会调 vcvars，所以在任何终端里执行都行。
 
-构建目标三个：`third_party_sqlite3`（静态库）、`clipvault_core`（静态库）、`clipvault` / `clipvault_tests`（可执行）。
+构建目标四个：`third_party_sqlite3`、`clipvault_core`（静态库），`clipvault`、`clipvault_tests`（可执行）。
 
 CI：每次 push 到 main 会在 `windows-latest` 上构建并跑测试。
 
