@@ -56,7 +56,7 @@ CI：每次 push 到 main 会在 `windows-latest` 上构建并跑测试。
 | clipRecord | core | 完成（字段定义） |
 | clipStore | core | 完成，9 个用例（insert / trimTo / recent） |
 | mainWindow | platform/win32 | 窗口、拖动、圆角、双色背景完成 |
-| clipboardReader | platform/win32 | 监听 + 读取文本完成 |
+| clipboardReader | platform/win32 | 监听 + 读取 + 归一化 + 入库完成 |
 | CI | `.github/workflows/ci.yml` | 构建 + 跑测试 |
 | 收藏库 FavoriteStore | core | 未开始 |
 | UI 列表显示 | platform/win32 | 未开始 |
@@ -65,24 +65,23 @@ CI：每次 push 到 main 会在 `windows-latest` 上构建并跑测试。
 
 ## 下一步
 
-把已经完成的三个模块连成一条链。现在 `textNormalize` 和 `ClipStore` 都还没有被主程序调用过。
+**M1 第 2 步：列表显示。** 把 `recent()` 取到的记录画到窗口里。
 
-```
-windowProc 收到通知
-  → readClipboardText      已有
-  → normalize              未接
-  → ClipStore::insert      未接
-  → ClipStore::trimTo      未接
-```
+要做的事：
 
-四处改动：
+1. 在 `WM_PAINT` 的内容区里按行绘制每条记录（GDI 的 `DrawTextW` 或 `TextOutW`）
+2. 一条一行，超宽截断加省略号
+3. 行高固定；超出窗口高度时先不做滚动，只显示前几条
+4. 数据来源 `ClipStore::recent(clipvault::core::kClipLimit)`，通过 `GWLP_USERDATA` 取到的 store 调用
 
-1. `src/main.cpp` —— 创建 `ClipStore store("clips.db")`，传给 `runMainWindow`
-2. `include/clipvault/platform/win32/mainWindow.hpp` —— `runMainWindow` 加一个 `ClipStore&` 参数
-3. `src/platform/win32/mainWindow.cpp` —— 创建窗口后把 `&store` 存进 `GWLP_USERDATA`，`windowProc` 开头取回
-4. `src/platform/win32/clipboardReader.cpp` —— `handleClipboardUpdate` 需要访问 store：要么加参数，要么把这段逻辑挪进 `windowProc`
+验证标准：复制几条不同内容，窗口里能看到对应文字，最近的在最上面。
 
-验证标准：复制一段文字后，`build/debug/clips.db` 里真的多出一条记录。
+注意：`WM_PAINT` 可能被频繁触发（拖动、遮挡恢复），不要每次都查库——把 `recent()` 的结果缓存在文件级变量里，只在收到 `WM_CLIPBOARDUPDATE` 时刷新。
+
+## 工作约定
+
+- 每次会话结束后更新本文件的「模块状态」和「下一步」
+- 出现新的架构决定时，在 `DECISIONS.md` 对应分类末尾追加一条
 
 ## 未决问题
 
