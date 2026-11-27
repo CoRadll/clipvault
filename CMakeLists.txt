@@ -12,6 +12,7 @@ target_include_directories(third_party_sqlite3 PUBLIC external/sqlite3)
 # 核心逻辑库
 add_library(clipvault_core STATIC
 	src/core/textNormalize.cpp
+	src/core/textPreview.cpp
 	src/core/clipStore.cpp)
 target_include_directories(clipvault_core PUBLIC include)
 target_link_libraries(clipvault_core PUBLIC third_party_sqlite3)
@@ -26,7 +27,9 @@ add_executable(clipvault
 	src/platform/win32/clipboardReader.cpp)
 target_link_libraries(clipvault PRIVATE clipvault_core)
 if (WIN32)
-	target_compile_definitions(clipvault PRIVATE UNICODE _UNICODE)
+	# NOMINMAX 关掉 windows.h 里的 min / max 宏。
+	# 不关的话 std::min(a, b) 会被宏改写成 std::((a) < (b) ? (a) : (b))，编译直接报错。
+	target_compile_definitions(clipvault PRIVATE UNICODE _UNICODE NOMINMAX)
 endif()
 if (MSVC)
 	target_compile_options(clipvault PRIVATE /Zc:__cplusplus /permissive- /W4 /utf-8)
@@ -36,6 +39,7 @@ endif()
 add_executable(clipvault_tests
 	external/catch2/catch_amalgamated.cpp
 	tests/test_textNormalize.cpp
+	tests/test_textPreview.cpp
 	tests/test_clipStore.cpp)
 target_include_directories(clipvault_tests PRIVATE external/catch2)
 target_link_libraries(clipvault_tests PRIVATE clipvault_core)
